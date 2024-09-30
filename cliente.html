@@ -1,0 +1,59 @@
+<!DOCTYPE html> <!-- Define el tipo de documento como HTML5 -->
+<html lang="es"> <!-- Indica que el contenido está en español -->
+<head>
+    <meta charset="UTF-8"> <!-- Establece la codificación de caracteres en UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configura la vista para dispositivos móviles -->
+    <title>Chat Cliente</title> <!-- Título de la página que se muestra en la pestaña del navegador -->
+    <script>
+        let socket; // Declara una variable para almacenar la conexión del WebSocket
+
+        // Función para conectar al servidor WebSocket
+        function conectar() {
+            const ip = document.getElementById("ip").value; // Obtiene la IP del servidor del campo de entrada
+            const puerto = document.getElementById("puerto").value; // Obtiene el puerto del campo de entrada
+            const nombre = document.getElementById("nombre").value; // Obtiene el nombre del usuario del campo de entrada
+
+            // Crea una nueva conexión WebSocket utilizando la IP y el puerto proporcionados
+            socket = new WebSocket(`ws://${ip}:${puerto}`);
+
+            // Función que se ejecuta cuando se establece la conexión
+            socket.onopen = function() {
+                socket.send(nombre); // Envía el nombre del usuario al servidor al conectarse
+                document.getElementById("status").innerText = "Conectado al servidor."; // Actualiza el estado de conexión en la interfaz
+            };
+
+            // Función que se ejecuta cuando se recibe un mensaje del servidor
+            socket.onmessage = function(event) {
+                const chat = document.getElementById("chat"); // Obtiene el área de texto para el chat
+                chat.value += event.data + "\n"; // Agrega el mensaje recibido al área de chat
+            };
+
+            // Función que se ejecuta cuando se cierra la conexión
+            socket.onclose = function() {
+                document.getElementById("status").innerText = "Conexión cerrada."; // Actualiza el estado de conexión en la interfaz
+            };
+        }
+
+        // Función para enviar un mensaje al servidor
+        function enviarMensaje() {
+            const mensaje = document.getElementById("mensaje").value; // Obtiene el mensaje del campo de entrada
+            socket.send(mensaje); // Envía el mensaje al servidor a través del WebSocket
+            document.getElementById("mensaje").value = ''; // Limpia el campo de entrada del mensaje
+        }
+    </script>
+</head>
+<body>
+    <h1>Chat Cliente</h1> <!-- Título principal de la página -->
+    <label for="ip">IP del servidor:</label>
+    <input type="text" id="ip" placeholder="Introduce la IP del servidor" required> <!-- Campo para ingresar la IP del servidor -->
+    <label for="puerto">Puerto:</label>
+    <input type="text" id="puerto" value="2020" required> <!-- Campo para ingresar el puerto (valor predeterminado: 2020) -->
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" placeholder="Introduce tu nombre" required> <!-- Campo para ingresar el nombre del usuario -->
+    <button onclick="conectar()">Conectar</button> <!-- Botón para iniciar la conexión al servidor -->
+    <p id="status"></p> <!-- Parrafo para mostrar el estado de conexión -->
+    <textarea id="chat" rows="10" cols="30" readonly></textarea><br> <!-- Área de texto para mostrar el chat (solo lectura) -->
+    <input type="text" id="mensaje" placeholder="Escribe un mensaje"> <!-- Campo para escribir un nuevo mensaje -->
+    <button onclick="enviarMensaje()">Enviar</button> <!-- Botón para enviar el mensaje escrito -->
+</body>
+</html>
